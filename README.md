@@ -37,9 +37,10 @@ FOLIO_BASE_PATH=/folio-bibliothek/ npm run test:pages
 
 `test:pages` prüft den tatsächlichen Unterpfad, EPUB/PDF, Schriften/Bilder, PWA-Scope, Offline-Dateien und die klare Titelzeile in mehreren Designs. Die iPad-Prüfung ist eine WebKit-Simulation.
 
-## Version 1.10.0
+## Version 1.10.1
 
 - Apple-Dateipakete mit einem äußeren `.epub`-Ordner werden als EPUB erkannt, auch wenn der Dateidialog `.zip` ergänzt. Kapitel und Cover behalten ihre relativen Pfade. Mehrdeutige, beschädigte oder verschlüsselte Inhalte werden weiter geprüft.
+- Kapitelname nur einmal in den Bedienelementen: die zweite Anzeige in der Werkzeugleiste entfällt.
 - Keine verschwommene Titelzeile: opake Kopfzeile ohne Glaseffekt; ausgeblendete iPad-Kopfzeile entfernt ihre Darstellung vollständig. Menüs behalten ihre korrekte Breite beim erneuten Öffnen.
 - GitHub-Unterpfade funktionieren auch für Updates, PDF-Schriften, Texturen, Manifest und den begrenzten Offline-Cache. Andere Apps auf derselben Domain werden nicht vom Worker übernommen.
 
