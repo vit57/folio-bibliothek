@@ -127,6 +127,7 @@ test('Sicherungen weisen ungültige Lerndaten, Prototype-Schlüssel und doppelte
 
 
 import {prepareBookFiles} from '../src/formats.js';
+import {readBookBytes} from '../src/file-bytes.js';
 import {epubFixture,pdfFixture} from './fixtures.mjs';
 test('Buchimport erkennt .epub.zip nach Inhalt und entpackt Buchdateien aus ZIPs',async()=>{
   const epub=await epubFixture(),renamed=new File([epub],'Buch.epub.zip',{type:'application/zip'});
@@ -136,8 +137,25 @@ test('Buchimport erkennt .epub.zip nach Inhalt und entpackt Buchdateien aus ZIPs
   const files=await prepareBookFiles(new File([await zip.generateAsync({type:'arraybuffer'})],'Buecher.zip'));
   assert.deepEqual(files.map(f=>f.name),['Buch.epub','Quelle.pdf']);assert.deepEqual(new Uint8Array(await files[0].arrayBuffer()),new Uint8Array(epub));
 });
+test('Dateipaket wird einmal vollständig gelesen, auch mit unbrauchbaren Teilreads und abweichender Größenmetadaten',async()=>{
+ const sourceBytes=await epubFixture(),bytes=sourceBytes.buffer.slice(sourceBytes.byteOffset,sourceBytes.byteOffset+sourceBytes.byteLength);let count=0;
+ const provider={name:'Buch.epub.zip',size:7*1024**2,type:'application/zip',slice(){throw new Error('Teilread nicht verfügbar');},async arrayBuffer(){count++;if(count>1)throw new Error('Dateizugriff abgelaufen');return bytes;}};
+ assert.equal((await prepareBookFiles(provider))[0],provider);assert.equal(await readBookBytes(provider),bytes);assert.equal(count,1);
+ const pdf=pdfFixture();const source={name:'Quelle.pdf',size:pdf.byteLength,async arrayBuffer(){return pdf.buffer.slice(pdf.byteOffset,pdf.byteOffset+pdf.byteLength);},slice(){throw new Error('Kein Teilread');}};assert.equal((await prepareBookFiles(source))[0],source);
+});
+test('Leere oder nicht lesbare Dateiauswahl wird erklärt und lässt einen erneuten Zugriff zu',async()=>{
+ let empty=true;const sourceBytes=await epubFixture(),bytes=sourceBytes.buffer.slice(sourceBytes.byteOffset,sourceBytes.byteOffset+sourceBytes.byteLength),file={size:0,name:'Cloud.epub',arrayBuffer:async()=>empty?new ArrayBuffer(0):bytes};
+ await assert.rejects(prepareBookFiles(file),/leere Datei/);empty=false;assert.equal((await prepareBookFiles(file))[0],file);
+ await assert.rejects(readBookBytes({size:20,arrayBuffer:async()=>{throw new Error('nicht lesbar');}}),/vollständig gelesen/);
+});
+test('ZIP-Buch mit anfänglichem Stream-Marker wird nach echter Archivstruktur erkannt',async()=>{
+ const source=await epubFixture(),buffer=new ArrayBuffer(source.byteLength+4),data=new Uint8Array(buffer);data.set([0x50,0x4b,7,8]);data.set(source,4);const view=new DataView(buffer),end=buffer.byteLength-22,start=view.getUint32(end+16,true)+4;view.setUint32(end+16,start,true);
+ let cursor=start;for(let n=0;n<view.getUint16(end+10,true);n++){view.setUint32(cursor+42,view.getUint32(cursor+42,true)+4,true);cursor+=46+view.getUint16(cursor+28,true)+view.getUint16(cursor+30,true)+view.getUint16(cursor+32,true);}
+ const file=new File([buffer],'Stream.epub.zip',{type:'application/zip'});assert.equal((await prepareBookFiles(file))[0],file);
+ const invalid=new File(['ZIP-Dateiname allein reicht nicht'],'Stream.epub.zip');await assert.rejects(prepareBookFiles(invalid),/ZIP-Archiv/);
+});
 test('Buch-ZIPs behalten Grenzen und Pfadprüfung; ungültige Dateien werden erklärt',async()=>{
-  await assert.rejects(prepareBookFiles(new File(['keine Buchdatei'],'Buch.epub.zip')),/Keine lesbare/);
+  await assert.rejects(prepareBookFiles(new File(['keine Buchdatei'],'Buch.epub.zip')),/ZIP-Archiv/);
   const zip=new JSZip();zip.file('readme.txt','Text');await assert.rejects(prepareBookFiles(new File([await zip.generateAsync({type:'arraybuffer'})],'datei.zip')),/kein lesbares/);
   const many=new JSZip();for(let n=0;n<21;n++)many.file(`Buch${n}.epub`,await epubFixture());await assert.rejects(prepareBookFiles(new File([await many.generateAsync({type:'arraybuffer'})],'viele.zip')),/20 Bücher/);
   const malicious=new JSZip();malicious.file('../Buch.epub',await epubFixture());await assert.rejects(prepareBookFiles(new File([await malicious.generateAsync({type:'arraybuffer'})],'pfade.zip')),/Unsichere/);

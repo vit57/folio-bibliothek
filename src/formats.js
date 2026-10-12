@@ -2,6 +2,7 @@ import JSZip from 'jszip';
 import {uid,escape,resolvePath} from './core.js';
 import {inspectArchive,readEntry} from './archive.js';
 import {findEPUBPackage,scopeEPUB} from './epub-package.js';
+import {readBookBytes} from './file-bytes.js';
 export const loadPDF=()=>import('./pdf.js');
 export const openPDF=async data=>(await loadPDF()).openPDF(data);
 const xml = value => { if(/<!ENTITY\b/i.test(value))throw new Error('EPUB mit XML-Entitäten wird nicht unterstützt.'); const doc = new DOMParser().parseFromString(value,'application/xml'); if (doc.querySelector('parsererror')) throw new Error('Ungültige EPUB-Struktur.'); return doc; };
@@ -79,7 +80,7 @@ function chapterSegments(root,navigation,heading){
   return segments;
 }
 export async function importEPUB(file, progress) {
-  const bytes=await file.arrayBuffer();inspectArchive(bytes);
+  const bytes=await readBookBytes(file);inspectArchive(bytes);
   const archive=await JSZip.loadAsync(bytes),info=findEPUBPackage(archive);
   if(!info)throw new Error('Die Buchstruktur dieses EPUBs konnte nicht erkannt werden.');
   const zip=scopeEPUB(archive,info);
@@ -136,7 +137,8 @@ export async function importEPUB(file, progress) {
   return {id:uid(),title,author,format:'EPUB',cover,pages,texts,toc:toc.filter(c=>c.page<pages.length),total:pages.length,parserVersion:3};
 }
 export async function importPDF(file, progress) {
-  const pdf = await openPDF(await file.arrayBuffer());
+  // PDF.js transfers its input to a worker. Preserve the cached original.
+  const pdf = await openPDF((await readBookBytes(file)).slice(0));
   try {
     const metadata = await pdf.getMetadata().catch(()=>null), texts = [];
     let cover = '';
@@ -159,16 +161,19 @@ export async function parseBook(file, progress) {
 // Downloads sometimes add .zip to EPUB names. Trust the signature and EPUB
 // container, while keeping the same archive, DRM and HTML safety checks.
 async function detectBookFormat(file){
-  const head=new Uint8Array(await file.slice(0,1024).arrayBuffer());
+  const bytes=await readBookBytes(file),head=new Uint8Array(bytes,0,Math.min(1024,bytes.byteLength));
   if(new TextDecoder().decode(head).includes('%PDF-'))return 'PDF';
   if(head[0]===0x50&&head[1]===0x4b&&head[2]===3&&head[3]===4)return 'EPUB';
+  // Some ZIP streams start with a marker rather than a local file header.
+  // A name/type is only a hint: bounded directory validation still decides.
+  if(/\.(?:epub|zip)$/i.test(file.name||'')||/^(?:application\/(?:epub\+zip|zip|x-zip-compressed))$/i.test(file.type||'')){inspectArchive(bytes,'books');return 'EPUB';}
   throw new Error('Keine lesbare Buchdatei erkannt. Bitte ein PDF, ein DRM-freies EPUB oder ein ZIP mit Buchdateien wählen.');
 }
 export async function prepareBookFiles(file){
   if(file.size>300*1024**2)throw new Error('Bitte eine Datei unter 300 MB verwenden.');
   const format=await detectBookFormat(file);
   if(format==='PDF')return [file];
-  const bytes=await file.arrayBuffer();inspectArchive(bytes,'books');
+  const bytes=await readBookBytes(file);inspectArchive(bytes,'books');
   const zip=await JSZip.loadAsync(bytes);
   if(findEPUBPackage(zip))return [file];
   const entries=Object.values(zip.files).filter(n=>!n.dir&&!n.name.startsWith('__MACOSX/')&&/\.(?:pdf|epub|epub\.zip)$/i.test(n.name));

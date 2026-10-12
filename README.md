@@ -41,6 +41,13 @@ FOLIO_BASE_PATH=/folio-bibliothek/ npm run test:pages
 
 `test:pages` prüft den tatsächlichen Unterpfad, EPUB/PDF, Schriften/Bilder, PWA-Scope, Offline-Dateien und die klare Titelzeile in mehreren Designs. Die iPad-Prüfung ist eine WebKit-Simulation.
 
+## Version 1.10.3
+
+- Buchdateien werden einmal vollständig gelesen und für Erkennung, Verarbeitung und Speicherung wiederverwendet. Unzuverlässige Dateiausschnitte und vorzeitig beendete Providerzugriffe werden so vermieden. Ein FileReader steht als Fallback bereit; leere Dateidaten werden konkret erklärt.
+- ZIP-Namen sind nur ein Hinweis: auch ZIP-Streams ohne anfänglichen lokalen Header werden anhand der tatsächlichen begrenzten Archivstruktur geprüft. Größen-, Pfad- und Verschlüsselungsprüfungen bleiben aktiv.
+- Eine gescheiterte Auswahl heißt „Import nicht möglich“ und erklärt, dass kein Buch gespeichert wurde. Teilerfolge nennen die tatsächlich gespeicherte Anzahl.
+- Die Original-PDF-Daten bleiben erhalten, wenn PDF.js seine Arbeitskopie an den Worker übergibt.
+
 ## Version 1.10.2
 
 Die Titelzeile im kompakten Reader hat eine eigene feste Zeile außerhalb der Buchfläche. In der installierten iPad-App sitzt sie zusätzlich unterhalb des oberen Systembereichs. Solider Seitenhintergrund und größere, kräftigere Schrift ersetzen die kleine schwebende Anzeige. Die Lesefläche bleibt beim Öffnen und Schließen der Bedienelemente stabil.
