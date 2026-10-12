@@ -14,7 +14,7 @@ import {exportDocuments,documentsMarkdown,notionTables,exportFilename} from './e
 import {inspectArchive,readEntry} from './archive.js';
 import {uid,escape as e,percentage,descendants,folderPath,searchBooks,normalize,validateBackup,locateQuote,originalOffset} from './core.js';
 import {parseBook,prepareBookFiles,importEPUB,openPDF,loadPDF} from './formats.js';
-import {readBookBytes,bookFileDetails} from './file-bytes.js';
+import {readBookBytes,bookFileDetails,registerBookEntry} from './file-bytes.js';
 import {demos,coverSVG} from './demo.js';
 import {visibleReadingLines,nearestReadingLine} from './reading-lines.js';
 import {paginate,visibleSelectionRect,positionSelectionTools,snapshotPage,animateTurn} from './pagination.js';
@@ -433,6 +433,7 @@ document.addEventListener('input',event=>{const el=event.target;const form=el.cl
   if(el.id==='book-search'){const hits=searchBooks([currentBook()],el.value).filter(h=>!h.title);$('#toc-items').hidden=!!el.value;$('#book-search-results').innerHTML=el.value?hits.map(h=>`<button class="toc-search-result" data-action="text-match:${h.page}:${h.offset || 0}"><strong>${currentBook().format==='PDF'?'Seite':'Abschnitt'} ${h.page+1}</strong><p>${e(h.excerpt)}</p></button>`).join('') || '<p class="muted">Keine Textstelle gefunden.</p>':'';}
 });
 document.addEventListener('change',event=>{const el=event.target;safe(async()=>{
+  if(el.id==='file-input'&&el.files.length){const files=[...el.files];let entries=[];try{entries=[...(el.webkitEntries||[])];}catch{}for(let n=0;n<files.length;n++)if(entries[n]?.name===files[n].name)registerBookEntry(files[n],entries[n]);await importFiles(files);return;}
   if(el.id==='learning-source'){stashLearningDraft();const original=currentBook(),previous=chapterSource(original),book=structuredClone(original),[page,offset]=el.value.split(':').map(Number);book.page=page;book.leaf=0;book.locationOffset=offset;book.sourceFocusOffset=offset;try{await saveBook(book);Object.assign(original,book);state.recall=false;renderAnalysis(original);}catch(error){el.value=`${previous.page}:${previous.offset}`;throw error;}}
   if(el.id==='theme-linked'){state.settings.themeLinked=el.checked;applyReaderStyle();await saveSettings();}
   if(el.id==='app-theme'){state.settings.appTheme=el.value;await saveSettings();applyAppearance();}
@@ -450,7 +451,6 @@ document.addEventListener('change',event=>{const el=event.target;safe(async()=>{
   if(['export-book-select','export-scope','export-format','export-drafts'].includes(el.id))updateExportPreview();
   if(el.id==='animation-setting'){state.settings.animation=el.checked;await saveSettings();}
   if(el.id==='page-number'){const page=Number(el.value)-1;if(!Number.isInteger(page)||page<0||page>=currentBook().total)throw new Error('Bitte eine gültige Seitennummer eingeben.');await turnPage(page);}
-  if(el.id==='file-input'&&el.files.length)await importFiles([...el.files]);
   if(el.id==='backup-input'&&el.files.length){await loadBackup(el.files[0]);el.value='';}
 });});
 document.addEventListener('keydown',event=>{
@@ -468,7 +468,7 @@ document.addEventListener('touchstart',event=>{if(event.target.closest('#reading
 document.addEventListener('touchend',event=>{if(!touchStart||!state.reader)return;const dx=event.changedTouches[0].clientX-touchStart.x,dy=event.changedTouches[0].clientY-touchStart.y;if(Math.abs(dx)>90&&Math.abs(dy)<45&&Date.now()-touchStart.time<650&&window.getSelection().isCollapsed)safe(()=>stepPage(dx<0?1:-1));touchStart=null;},{passive:true});
 document.addEventListener('dragstart',event=>{const card=event.target.closest('[data-book]');if(card)event.dataTransfer.setData('application/folio-book',card.dataset.book);});
 document.addEventListener('dragover',event=>{if(event.target.closest('[data-folder]')||event.dataTransfer.types.includes('Files'))event.preventDefault();});
-document.addEventListener('drop',event=>{const folder=event.target.closest('[data-folder]');if(folder){event.preventDefault();const b=state.books.find(b=>b.id===event.dataTransfer.getData('application/folio-book'));if(b)safe(async()=>{if(!b.collections.includes(folder.dataset.folder))b.collections.push(folder.dataset.folder);await saveBook(b);render();toast('Buch zur Collection hinzugefügt.');});}else if(event.dataTransfer.files.length){event.preventDefault();safe(()=>importFiles([...event.dataTransfer.files]));}});
+document.addEventListener('drop',event=>{const folder=event.target.closest('[data-folder]');if(folder){event.preventDefault();const b=state.books.find(b=>b.id===event.dataTransfer.getData('application/folio-book'));if(b)safe(async()=>{if(!b.collections.includes(folder.dataset.folder))b.collections.push(folder.dataset.folder);await saveBook(b);render();toast('Buch zur Collection hinzugefügt.');});}else if(event.dataTransfer.files.length){event.preventDefault();const files=[...event.dataTransfer.files],items=[...(event.dataTransfer.items||[])].filter(item=>item.kind==='file');for(let n=0;n<files.length;n++){try{const entry=items[n]?.webkitGetAsEntry?.();if(entry)registerBookEntry(files[n],entry);}catch{}}safe(()=>importFiles(files));}});
 let resizeTimer;window.addEventListener('resize',()=>{syncReaderChrome();centerReaderHeader();clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(state.reader)safe(relayoutReader);},250);});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyAppearance();if(state.reader)applyReaderStyle();});
 async function loadState(){const [books,folders,annotations,settings,records]=await Promise.all([db.all('books'),db.all('folders'),db.all('annotations'),db.get('settings','preferences'),db.all('settings')]);const preferences=migrateAppearance({...defaults,...settings});learningDrafts=new Map(records.filter(r=>r.id.startsWith('learning-draft:')&&books.some(b=>b.id===r.bookId)).map(r=>[r.id.slice(15),r]));books.forEach(migrateLearning);Object.assign(state,{books,folders,annotations,settings:preferences});if(settings?.typographyVersion!==2||settings?.motionVersion!==3||settings?.readerExperienceVersion!==1)await db.put('settings',preferences);applyAppearance();}

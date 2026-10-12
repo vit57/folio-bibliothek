@@ -1,6 +1,6 @@
 {
   "name": "folio-books",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build && node scripts/package.mjs",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node --test tests/core.test.mjs tests/export.test.mjs",
+    "test": "node --test tests/core.test.mjs tests/export.test.mjs tests/book-package.test.mjs",
     "test:browser": "node tests/browser.mjs",
     "test:reliability": "FOLIO_RELIABILITY_ONLY=1 node tests/browser.mjs",
     "test:ipad": "FOLIO_IPAD_ONLY=1 node tests/browser.mjs",

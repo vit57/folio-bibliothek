@@ -41,6 +41,12 @@ FOLIO_BASE_PATH=/folio-bibliothek/ npm run test:pages
 
 `test:pages` prüft den tatsächlichen Unterpfad, EPUB/PDF, Schriften/Bilder, PWA-Scope, Offline-Dateien und die klare Titelzeile in mehreren Designs. Die iPad-Prüfung ist eine WebKit-Simulation.
 
+## Version 1.10.5
+
+EPUB-Pakete lassen sich zusätzlich direkt aus den Dateieinträgen der Auswahl oder aus Drag-and-drop einlesen, wenn der Browser diese bereitstellt. Das behandelt den gemeldeten Safari-Fall mit 0 Byte und NotFoundError. Die App erstellt auf dem Gerät eine einzelne EPUB-Datei aus dem ausgewählten Buchordner; Originaldateien werden nicht verändert und Buchdaten nicht übertragen. Größen-/Pfadgrenzen sowie die bestehende Struktur-, DRM- und Inhaltsprüfung gelten weiter. Ein physischer iPad-Test steht noch aus.
+
+Die Browserprüfung enthält jetzt auch diesen Fehlerfall, mehrere Eintragsbatches, Safaris virtuelle ZIP-Endung, Drag-and-drop, Speicherung/Wiederöffnen sowie fehlende und verweigerte Dateieinträge.
+
 ## Version 1.10.4
 
 Ein fehlgeschlagener Import zeigt die laufende App-Version und auf Wunsch eine lokale Diagnose: Dateiname/-typ, gemeldete und tatsächlich gelesene Byteanzahl, Lesemethode, erste acht Bytes als Dateikennung, Verarbeitungsstufe und Fehler. Es gibt keinen automatischen Upload. „Diagnose kopieren“ arbeitet per eigener Aktion; die Originaldatei wird nicht in den Bericht aufgenommen.

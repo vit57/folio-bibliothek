@@ -7,6 +7,7 @@ import {resolve,extname} from 'node:path';
 import {bundleFixture,pdfFixture} from './fixtures.mjs';
 import {revealReader} from './reader-v15.mjs';
 import {installedTitle} from './title-v1102.mjs';
+import {epubPackageV1105} from './epub-package-v1105.mjs';
 const root=resolve(process.env.FOLIO_TEST_DIST || 'dist'),base=process.env.FOLIO_BASE_PATH || '/';
 const server=createServer(async(req,res)=>{try{
  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -37,6 +38,7 @@ try{for(const [engine,tablet] of [[chromium,false],[webkit,true]]){
   const cached=await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration(),worker=await (await fetch(r.active.scriptURL)).text(),assets=JSON.parse(worker.match(/const ASSETS=(.*);/)[1]);const names=await caches.keys(),requests=(await Promise.all(names.map(n=>caches.open(n).then(c=>c.keys())))).flat().map(r=>new URL(r.url).pathname);return {assets,requests};});assert.ok(cached.assets.length>200);assert.ok(cached.assets.every(p=>p.startsWith(base)));assert.ok(cached.assets.every(p=>cached.requests.includes(p)));
   if(!tablet)await context.setOffline(true);await page.reload();await page.locator('.book-title',{hasText:'Pages Buchprobe'}).click();await revealReader(page);await expect(page.locator('#epub-page')).toContainText('Sternenkarte');await context.setOffline(false);assert.deepEqual(errors,[]);assert.deepEqual(badPaths,[]);console.log(`BESTANDEN Pages ${tablet?'iPad/WebKit':'Mac/Chromium'}: ${base}, EPUB/PDF, Bilder/Schriften, Menü/Titel in 6 Designs ohne Glaseffekt, isolierter Offline-Cache und Lesestelle.`);
   if(tablet)await installedTitle(browser,url,optionsForTablet());
+  await epubPackageV1105(browser,url,tablet?optionsForTablet():{});
  }catch(error){console.error('Browserdiagnose',tablet?'WebKit':'Chromium',await page.locator('#dialog').innerText().catch(()=>''),errors);await page.screenshot({path:`test-results/github-failure-${tablet?'ipad':'mac'}.png`}).catch(()=>{});throw error;}finally{await context.close();await browser.close();}
 }}finally{await new Promise(r=>server.close(r));}
 function optionsForTablet(){return {...devices['iPad (gen 7)']};}
