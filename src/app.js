@@ -23,6 +23,9 @@ import {readerSettings,designPicker} from './reader-settings.js';
 import {learningPane,readBookPlan,readChapterSession,chapterKey,chapterName,chapterSource,migrateLearning,understanding,nextReview,dueLearning,mixedReview} from './learning.js';
 
 const APP_VERSION=appMeta.version;document.documentElement.dataset.appVersion=APP_VERSION;
+const standaloneDisplay=matchMedia('(display-mode: standalone)');
+function syncDisplayMode(){document.documentElement.dataset.displayMode=navigator.standalone||standaloneDisplay.matches?'standalone':'browser';}
+syncDisplayMode();standaloneDisplay.addEventListener('change',syncDisplayMode);
 const $ = (s,root=document) => root.querySelector(s);
 const app = $('#app'), dialog = $('#dialog');
 const defaults={id:'preferences',theme:'paper',font:'Georgia',size:26,leading:1.8,animation:true,view:'gallery',zoom:1,pageWidth:760,animationStyle:'page',appTheme:'system',uiScale:1.1,appDesign:'folio',boldText:false,lineGuide:false,guideLines:1,guidePosition:42,guideDim:true,guideDimming:'medium',themeLinked:true,readingSurface:'integrated',pdfMode:'paged',tracking:0,textAlign:'left',ambientMotion:true};

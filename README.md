@@ -41,6 +41,10 @@ FOLIO_BASE_PATH=/folio-bibliothek/ npm run test:pages
 
 `test:pages` prüft den tatsächlichen Unterpfad, EPUB/PDF, Schriften/Bilder, PWA-Scope, Offline-Dateien und die klare Titelzeile in mehreren Designs. Die iPad-Prüfung ist eine WebKit-Simulation.
 
+## Version 1.10.2
+
+Die Titelzeile im kompakten Reader hat eine eigene feste Zeile außerhalb der Buchfläche. In der installierten iPad-App sitzt sie zusätzlich unterhalb des oberen Systembereichs. Solider Seitenhintergrund und größere, kräftigere Schrift ersetzen die kleine schwebende Anzeige. Die Lesefläche bleibt beim Öffnen und Schließen der Bedienelemente stabil.
+
 ## Version 1.10.1
 
 - Apple-Dateipakete mit einem äußeren `.epub`-Ordner werden als EPUB erkannt, auch wenn der Dateidialog `.zip` ergänzt. Kapitel und Cover behalten ihre relativen Pfade. Mehrdeutige, beschädigte oder verschlüsselte Inhalte werden weiter geprüft.
