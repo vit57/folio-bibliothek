@@ -1,0 +1,168 @@
+/* The continuation card owns its contrast, independent of the app palette. */
+.continue-card{--hero-ink:#fffdf0;--hero-muted:#e2ead6;--hero-track:#ffffff38;--hero-fill:#f6e4a0;background-color:var(--hero-bg,#36503b)}
+.continue-card .continue-copy h2{color:var(--hero-ink)}
+.continue-card .continue-copy p,.continue-card .continue-copy>.eyebrow,.continue-card .continue-progress>span:last-child{color:var(--hero-muted)}
+.continue-card .continue-progress{width:340px;max-width:100%;gap:14px}
+.continue-card .continue-progress .progress-track{height:7px;background:var(--hero-track);min-width:80px;border-radius:8px;box-shadow:inset 0 0 0 1px #ffffff18}
+.continue-card .continue-progress .progress-track>span{background:var(--hero-fill);min-width:3px;border-radius:8px}
+.continue-card .continue-progress>span:last-child{font-size:calc(.9375rem * var(--ui-scale));font-weight:500}
+.continue-card .continue-copy p{font-size:calc(.9375rem * var(--ui-scale));line-height:1.5}
+/* The reader is a viewport, never an extension of the library's scroll. */
+html[data-reading=true],html[data-reading=true] body{overflow:hidden;overscroll-behavior:none}
+.reader{position:fixed;inset:0;height:100dvh;z-index:40}
+.reader.immersive-reader:not(.analysis-open){position:fixed}
+.reader.immersive-reader .reader-header{top:calc(12px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));right:calc(12px + env(safe-area-inset-right));height:64px;min-height:64px;background:var(--surface);opacity:1;transition:transform .16s,visibility .16s;overflow:visible}
+.reader.immersive-reader.chrome-hidden .reader-header{opacity:0;transform:translateY(-6px)}
+.reader.immersive-reader .reader-header-tools .icon-btn{flex-shrink:0}
+.reader.immersive-reader .reader-book-title{line-height:1.3}
+.reader.immersive-reader .reader-pane,.reader.immersive-reader .reader-pane.toc-pane{top:calc(88px + env(safe-area-inset-top))}
+.epub-page{letter-spacing:var(--read-tracking,0);text-align:var(--read-alignment,left)}
+[data-action=toggle-bookmark]{position:relative}
+[data-action=toggle-bookmark][aria-pressed=true]{color:var(--green);background:var(--soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--green) 35%,transparent)}
+[data-action=toggle-bookmark][aria-pressed=true] svg{fill:currentColor;stroke:var(--surface);stroke-width:1.4}
+[data-action=toggle-bookmark][aria-pressed=true]:after{content:'✓';position:absolute;right:3px;bottom:2px;font:700 10px/16px system-ui;width:16px;height:16px;border-radius:50%;background:var(--green);color:var(--on-green);box-shadow:0 0 0 2px var(--surface)}
+/* Short-lived compositor layers only; reverse turns open the incoming leaf. */
+.book-turn-layer{perspective:2600px;overflow:visible;contain:layout;isolation:isolate}
+.book-turn-old,.book-turn-incoming{position:absolute;inset:0;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform,opacity}
+.book-turn-old>.book-snapshot-sheet,.book-turn-incoming>.book-snapshot-sheet{max-width:none!important;max-height:none!important;overflow:hidden}
+.book-turn-shadow{z-index:3;width:24%;opacity:0;background:linear-gradient(90deg,#00000024,transparent);transform-origin:left center}
+.book-turn-fold{width:32px;background:linear-gradient(90deg,transparent,#0000000a 45%,#ffffff32 85%,#00000014);opacity:0}
+/* A line-sized, column-aligned focus. Dimming is optional. */
+.line-guide{z-index:10}
+.line-guide-band{left:var(--guide-left,20px);right:auto;top:var(--guide-top,80px);width:var(--guide-width,90%);height:var(--guide-height,42px);max-height:100%;border:1px solid color-mix(in srgb,var(--reader-ink) 15%,transparent);border-radius:9px;background:color-mix(in srgb,var(--reader-line) 25%,transparent);box-shadow:none;transition:top .15s,height .15s}
+.line-guide.dim-surroundings .line-guide-band{box-shadow:0 0 0 150vmax #00000022}
+.guide-handle{left:-18px;width:32px;min-width:32px;height:40px;min-height:40px;background:var(--reader-paper);border-radius:12px;box-shadow:0 2px 10px #0001;opacity:.9}
+.guide-controls{position:absolute;right:18px;bottom:16px;z-index:23;display:flex;gap:2px;align-items:center;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:3px;box-shadow:0 4px 20px #0002}
+.guide-controls[hidden]{display:none}
+.guide-controls .icon-btn{width:40px;min-width:40px;height:40px;min-height:40px;padding:10px}
+.guide-line-status{font:500 11px/1.3 system-ui;padding:0 4px;min-width:65px;text-align:center;color:var(--muted)}
+.reader.immersive-reader:not(.chrome-hidden) .guide-controls{bottom:calc(152px + env(safe-area-inset-bottom))}
+.reader-settings-dialog{width:min(940px,calc(100vw - 24px));overflow:hidden;max-height:calc(100dvh - 32px)}
+.reader-settings-header{position:relative;height:68px;padding:12px 24px}
+.reader-settings-body{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(300px,1fr);gap:24px;padding:0;height:min(820px,calc(100dvh - 102px));overflow:hidden}
+.settings-preview-column{padding:24px 20px 24px 24px;background:color-mix(in srgb,var(--panel) 55%,var(--surface));border-right:1px solid var(--line);overflow:auto}
+.preview-heading{font:600 13px/1.5 system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+.type-preview{position:relative;margin:0;min-height:320px;max-height:510px;overflow:hidden;padding:24px;border-radius:18px;box-shadow:0 8px 30px #0000000b}
+.type-preview:before{content:"";position:absolute;bottom:0;left:0;right:0;height:22px;background:linear-gradient(transparent,var(--preview-paper));z-index:1;pointer-events:none}
+.type-preview strong{font-size:38px;font-weight:var(--preview-weight)}
+.type-preview p{font-family:var(--preview-font);font-size:var(--preview-size,26px);font-weight:var(--preview-weight);line-height:var(--preview-leading,1.8);letter-spacing:var(--preview-tracking,0);text-align:var(--preview-align,left);max-width:var(--preview-width,100%);margin:14px auto 0}
+.type-preview[data-guide=true]:after{content:'';position:absolute;left:16px;right:16px;top:86px;height:calc(var(--preview-size,26px) * var(--preview-leading,1.8) * var(--preview-guide-lines,1));border-block:1px solid #8c9e7045;background:#8c9e7012;pointer-events:none;border-radius:8px}
+.preview-metrics{font:500 13px/1.7 system-ui;color:var(--ink);padding:14px 0;border-bottom:1px solid var(--line);margin:0}
+.preview-hint{font:13px/1.7 system-ui;color:var(--muted)}
+.reader-settings-controls{overflow:auto;overscroll-behavior:contain;padding:20px 24px 24px 0}
+.reader-settings-dialog .settings-group{margin:16px 0}
+.design-picker{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.design-choice{min-width:0;line-height:1.4}
+@media(max-width:759px){.reader-settings-body{display:flex;flex-direction:column;gap:0;height:calc(100dvh - 102px)}.settings-preview-column{padding:14px 18px;border-right:0;border-bottom:1px solid var(--line);overflow:hidden;flex-shrink:0}.preview-heading{display:none}.type-preview{min-height:0;height:185px;padding:14px 20px}.type-preview strong{display:none}.type-preview p{margin-top:0}.type-preview p+p{margin-top:14px}.preview-metrics{padding:7px 0;border:0;font-size:12px}.preview-hint{display:none}.reader-settings-controls{padding:16px 18px;min-height:0}.guide-controls{right:10px;bottom:10px}.guide-line-status{min-width:60px}.design-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.line-guide-band,.reader.immersive-reader .reader-header{transition:none}}
+
+/* Liquid Glass inputs: an inset surface instead of flat pale rectangles. */
+html[data-design=glass] dialog{border-radius:26px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 96%,transparent),color-mix(in srgb,var(--panel) 88%,transparent));border:1px solid color-mix(in srgb,var(--ink) 13%,#ffffff50);box-shadow:inset 0 1px 0 #ffffff80,0 24px 80px #203b4e25}
+html[data-design=glass] dialog label{font-weight:500;color:var(--ink);line-height:1.55}
+html[data-design=glass] dialog label>input:not([type=checkbox]):not([type=range]),html[data-design=glass] dialog label>textarea,html[data-design=glass] dialog label>select,html[data-design=glass] .learning-canvas input:not([type=checkbox]),html[data-design=glass] .learning-canvas textarea,html[data-design=glass] .learning-canvas select{background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 88%,transparent),color-mix(in srgb,var(--surface) 70%,var(--panel)));border:1px solid color-mix(in srgb,var(--ink) 17%,transparent);border-radius:16px;padding:14px 16px;box-shadow:inset 0 1px 1px #00000005,0 1px 0 #ffffff55;color:var(--ink);font-weight:400;transition:border-color .15s,box-shadow .15s}
+html[data-design=glass] dialog input:focus-visible,html[data-design=glass] dialog textarea:focus-visible,html[data-design=glass] dialog select:focus-visible{outline:none;border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 15%,transparent),inset 0 1px 1px #00000004}
+html[data-design=glass] .book-metadata{padding:18px 20px;border:1px solid color-mix(in srgb,var(--ink) 13%,transparent);border-radius:20px;background:color-mix(in srgb,var(--surface) 40%,transparent);box-shadow:inset 0 1px 0 #ffffff55}
+html[data-design=glass] .book-metadata summary{display:block;list-style:none;padding:4px 0 12px;font-weight:600;cursor:pointer}
+html[data-design=glass] .book-metadata summary::-webkit-details-marker{display:none}
+html[data-design=glass] .book-metadata summary:before{content:'＋';display:inline-block;font-size:18px;width:25px;font-weight:400;transition:transform .15s}
+html[data-design=glass] .book-metadata[open] summary:before{content:'−'}
+html[data-design=glass] .book-metadata summary:focus-visible{outline:2px solid var(--green);outline-offset:5px;border-radius:6px}
+html[data-design=glass] .book-metadata label{margin:18px 0}
+html[data-design=glass] dialog fieldset{border:1px solid var(--line);border-radius:20px;padding:14px 20px;background:color-mix(in srgb,var(--surface) 35%,transparent)}
+html[data-design=glass] .book-actions .subtle-btn{border:1px solid color-mix(in srgb,var(--green) 20%,transparent);background:color-mix(in srgb,var(--surface) 85%,transparent);border-radius:16px;color:var(--green)}
+html[data-design=glass] .reader-settings-dialog .setting-row select{background:transparent;border:0;box-shadow:none;padding:8px}
+/* World I: archival paper, deckled edges, a library stamp and foxed margins. */
+html[data-design=aged]{--bg:#d7c39c;--panel:#e7d5ad;--surface:#f5e7c5;--ink:#43301e;--muted:#705636;--line:#c8ad7c;--green:#754631;--on-green:#fff4d9;--soft:#dec396;--hero-bg:#594631}
+html[data-design=aged][data-appearance=dark]{--bg:#251d16;--panel:#3b2e21;--surface:#33281d;--ink:#f4e5c5;--muted:#cfb58b;--line:#654c30;--green:#d4b87f;--on-green:#2e2214;--soft:#51402b}
+html[data-design=aged] body,html[data-design=aged] .sidebar,html[data-design=aged] .topbar,html[data-design=aged] .main-content,html[data-design=aged] dialog{background-image:url('/world-parchment.svg');background-size:640px 640px}
+html[data-design=aged] .shell,html[data-design=aged] .main{background:transparent}
+html[data-design=aged] .sidebar{background-color:var(--panel);border-right:3px double var(--line);box-shadow:6px 0 24px #39240d18}
+html[data-design=aged] .brand,html[data-design=aged] .welcome h1,html[data-design=aged] .page-heading h1{font-family:Baskerville,Georgia,serif}
+html[data-design=aged] .brand-sub:after{content:'EX LIBRIS · FOLIO';display:block;margin-top:14px;font-size:10px;letter-spacing:.18em;color:var(--green);border-block:1px solid var(--line);padding:8px 0;width:max-content}
+html[data-design=aged] .main-content{position:relative;width:calc(100% - 46px);margin:24px auto 40px;padding:36px;background-color:var(--surface);border:1px solid var(--line);border-radius:2px;box-shadow:0 2px 0 var(--line),0 16px 40px #39240d22}
+html[data-design=aged] .continue-card{background-color:var(--hero-bg);background-image:url('/world-parchment.svg');border:4px double #b79b663f;border-radius:4px}
+html[data-design=aged] .annotation-card,html[data-design=aged] .learning-canvas,html[data-design=aged] .review-card{background-image:url('/world-parchment.svg');border:1px solid var(--line);border-radius:3px;box-shadow:0 4px 12px #39240d12}
+.design-choice[data-design=aged] .design-sample{background-image:url('/world-parchment.svg');background-color:#eed8ac;border:1px solid #bc985f;box-shadow:0 3px 0 -1px #ceb68a}
+/* World II: carved stone, fine brass lines and a restrained classical order. */
+html[data-design=antique]{--bg:#e7e1d3;--panel:#eee8db;--surface:#fffaf0;--ink:#39312c;--muted:#71655a;--line:#c6b48d;--green:#806240;--on-green:#fffaf0;--soft:#e6d9bd;--hero-bg:#4b4940}
+html[data-design=antique][data-appearance=dark]{--bg:#201f1b;--panel:#302e27;--surface:#292720;--ink:#eee6d1;--muted:#c5b89a;--line:#61583e;--green:#d0b578;--on-green:#272319;--soft:#48412f}
+html[data-design=antique] body,html[data-design=antique] .sidebar,html[data-design=antique] .topbar,html[data-design=antique] .main-content{background-image:url('/world-marble.svg');background-size:720px 720px}
+html[data-design=antique] .sidebar{border-right:4px double var(--line);background-color:var(--panel)}
+html[data-design=antique] .brand,html[data-design=antique] .welcome h1,html[data-design=antique] .page-heading h1{font-family:'Iowan Old Style',Palatino,Georgia,serif}
+html[data-design=antique] .brand-sub:after{content:'LITTERAE · MEMORIA · SCIENTIA';display:block;font-size:9px;letter-spacing:.1em;margin-top:15px;color:var(--green)}
+html[data-design=antique] .continue-card{background-color:var(--hero-bg);border:1px solid #c9b7817a;border-radius:2px;box-shadow:inset 0 0 0 6px #ffffff06,inset 0 0 0 7px #c9b78130,0 10px 22px #30241013}
+html[data-design=antique] .continue-art:after{content:'✧';position:absolute;right:22px;bottom:18px;font:32px Georgia;color:#e0c792}
+html[data-design=antique] .section-title{border-block:1px solid var(--line);padding-block:16px}
+html[data-design=antique] .learning-canvas,html[data-design=antique] .annotation-card{border-radius:2px;border:1px solid var(--line);box-shadow:inset 0 0 0 4px var(--surface),inset 0 0 0 5px var(--line)}
+.design-choice[data-design=antique] .design-sample{background-image:url('/world-marble.svg');background-color:#f4ecdc;border:3px double #b6a279}
+/* World III: a collected edition, generous type and a vermilion editorial rule. */
+html[data-design=editorial]{--bg:#e8e7e1;--panel:#f0efea;--surface:#fffefa;--ink:#171918;--muted:#5d625e;--line:#c6c9c3;--green:#a82d26;--on-green:#fff;--soft:#f3ddd8;--hero-bg:#252723;--hero-fill:#ffb89e}
+html[data-design=editorial][data-appearance=dark]{--bg:#181918;--panel:#292a28;--surface:#222321;--ink:#f5f2e8;--muted:#c8c8be;--line:#4d5149;--green:#ff9d89;--on-green:#211411;--soft:#473029}
+html[data-design=editorial] .brand{font-family:Georgia,serif;letter-spacing:-.06em;font-weight:700}
+html[data-design=editorial] .brand-sub:after{content:'THE READING EDITION · № 01';display:block;margin-top:14px;font-size:9px;letter-spacing:.1em;color:var(--green)}
+html[data-design=editorial] .main-content{border-top:5px solid var(--green);margin-top:28px;padding-top:30px}
+html[data-design=editorial] .welcome h1{font-family:Georgia,serif;font-size:clamp(38px,4vw,70px);line-height:1.04;letter-spacing:-.05em}
+html[data-design=editorial] .welcome .eyebrow,html[data-design=editorial] .page-heading .eyebrow{color:var(--green);letter-spacing:.2em;font-weight:700}
+html[data-design=editorial] .continue-card{background-color:var(--hero-bg);border-radius:0;border-left:6px solid var(--green)}
+html[data-design=editorial] .section-title{border-bottom:2px solid var(--ink);padding-bottom:15px}
+html[data-design=editorial] .book-caption .book-title{font-family:Georgia,serif;font-size:calc(1.0625rem * var(--ui-scale));font-weight:600}
+html[data-design=editorial] .annotation-card,html[data-design=editorial] .learning-canvas{border-radius:0;border-top:3px solid var(--green);box-shadow:none}
+.design-choice[data-design=editorial] .design-sample{background:#f8f7ef;border-top:4px solid #a82d26;border-radius:0}.design-choice[data-design=editorial] .design-sample i{background:#d6d6ce;border-radius:0}
+/* World IV: walnut shelves, leather-like panels and warm reading lamps. */
+html[data-design=library]{--bg:#e9dfca;--panel:#e1d3b6;--surface:#fff5df;--ink:#3c2a1f;--muted:#72583f;--line:#bfa67a;--green:#744a2f;--on-green:#fff4d9;--soft:#d9c19b;--hero-bg:#3c2a21;--hero-fill:#f3d49a}
+html[data-design=library][data-appearance=dark]{--bg:#191410;--panel:#30241b;--surface:#281e17;--ink:#f4e4c6;--muted:#d3b58b;--line:#67513b;--green:#dfbd7d;--on-green:#261b11;--soft:#59402a}
+html[data-design=library] body,html[data-design=library] .sidebar,html[data-design=library] .topbar{background-image:url('/world-wood.svg');background-size:640px 320px}
+html[data-design=library] .sidebar{background-color:var(--panel);border-right:3px solid var(--line);box-shadow:inset -8px 0 18px #00000010,5px 0 20px #0000000a}
+html[data-design=library] .brand{font-family:Georgia,serif}.design-choice[data-design=library] .design-sample{background-color:#68482e;background-image:url('/world-wood.svg');box-shadow:inset 0 -9px 0 #3e281a,inset 0 -10px 0 #b58c5b}
+html[data-design=library] .brand-sub:after{content:'THE PRIVATE READING ROOM';display:block;margin-top:15px;font-size:9px;letter-spacing:.13em;color:var(--green)}
+html[data-design=library] .continue-card{background-color:var(--hero-bg);background-image:radial-gradient(ellipse at 80% 5%,#edb66920,transparent 55%),url('/world-wood.svg');border:1px solid #ab845050;border-radius:8px;box-shadow:0 12px 28px #24130620}
+html[data-design=library] .book-cover-wrap:after{content:'';position:absolute;left:-12px;right:-12px;bottom:-8px;height:11px;background:linear-gradient(#b18b5c,#6c462c 38%,#3b2418);border-top:1px solid #d2ac7355;box-shadow:0 8px 13px #29170730;border-radius:2px;pointer-events:none}
+html[data-design=library] .book-grid{row-gap:44px;padding:12px 10px 20px}
+html[data-design=library] .book-card .cover{box-shadow:5px 5px 10px #1f120b35,-1px 0 0 #fff2}
+html[data-design=library] .cover-button{transition:transform .28s cubic-bezier(.2,.8,.2,1);transform-origin:left bottom}
+html[data-design=library] .cover-button:hover{transform:perspective(900px) rotateY(-7deg) translateY(-5px)}
+/* World V: an original astral reading room, ink, brass and drifting stardust. */
+html[data-design=magic]{--bg:#eeecf6;--panel:#e5e0f0;--surface:#fffaff;--ink:#302641;--muted:#6d5d80;--line:#cabbd8;--green:#684c86;--on-green:#fff;--soft:#dfd0eb;--hero-bg:#29213e;--hero-fill:#f0d594}
+html[data-design=magic][data-appearance=dark]{--bg:#10111f;--panel:#202037;--surface:#1d1b30;--ink:#f4edde;--muted:#cfbfdf;--line:#574669;--green:#dbc38c;--on-green:#211a2b;--soft:#453153}
+html[data-design=magic] body{background-image:radial-gradient(ellipse at 5% 10%,#9570c41a,transparent 65%),radial-gradient(ellipse at 90% 85%,#c7a35112,transparent 60%)}
+html[data-design=magic] .sidebar{border-right:1px solid var(--line);background-image:linear-gradient(155deg,#9570c410,transparent 65%)}
+html[data-design=magic] .brand{font-family:Georgia,serif;letter-spacing:-.05em}
+html[data-design=magic] .brand-sub:after{content:'THE ASTRAL ARCHIVE · ✧';display:block;font-size:9px;letter-spacing:.14em;margin-top:15px;color:var(--green)}
+html[data-design=magic] .continue-card{background-color:var(--hero-bg);background-image:radial-gradient(ellipse at 85% 40%,#b78cca25,transparent 60%),url('/world-celestial.svg');background-size:cover,540px 540px;background-position:center,right center;border:1px solid #c1a66d70;border-radius:20px;box-shadow:inset 0 0 0 5px #c1a66d08,0 12px 32px #24113420}
+html[data-design=magic] .annotation-card,html[data-design=magic] .learning-canvas{border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 28px #3a1f5310,inset 0 1px 0 #ffffff20}
+.design-choice[data-design=magic] .design-sample{background-color:#252039;background-image:url('/world-celestial.svg');background-size:120px 120px;border:1px solid #b79b6b}.design-choice[data-design=magic] .design-sample b{background:#b79b6b55}.design-choice[data-design=magic] .design-sample i{background:#c7b2df33}
+.world-scene{display:none;position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+html[data-design=magic] .world-scene,html[data-design=library] .world-scene{display:block}
+html[data-design=magic] .main,html[data-design=library] .main{position:relative;background:transparent}
+html[data-design=magic] .world-orbit{position:absolute;width:600px;height:600px;right:-200px;top:12%;background:url('/world-celestial.svg') center/contain;opacity:.13;animation:world-orbit 100s linear infinite}
+html[data-design=library] .world-orbit{position:absolute;inset:0;background:radial-gradient(ellipse at 85% 5%,#e9b86520,transparent 55%);animation:world-lamp 18s ease-in-out infinite}
+.world-scene>span{position:absolute;left:var(--star-x);top:var(--star-y);width:3px;height:3px;border-radius:50%;background:#c7a46d;box-shadow:0 0 8px #d5b57355;opacity:.35;animation:world-drift 12s var(--star-delay) ease-in-out infinite}
+html[data-design=library] .world-scene>span{width:2px;height:2px;opacity:.18}
+html[data-design=magic] .book-card,html[data-design=library] .book-card{animation:world-book-in .48s calc(var(--book-order,0)*35ms) backwards}
+@keyframes world-orbit{to{transform:rotate(360deg)}}
+@keyframes world-lamp{50%{opacity:.5;transform:translateX(-2%)}}
+@keyframes world-drift{50%{transform:translate3d(8px,-18px,0);opacity:.15}}
+@keyframes world-book-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+html[data-ambient=false] .world-scene *,html[data-ambient=false] .book-card{animation:none!important}
+/* Reading worlds use decoration in the margins, without changing user fonts. */
+.reader[data-theme=aged] .epub-sheet{background-image:url('/world-parchment.svg');background-size:640px 640px;border-radius:3px;box-shadow:0 12px 32px #38230d25,inset 0 0 0 1px #c3a976}
+.reader[data-theme=antique] .epub-sheet{border-radius:3px;box-shadow:inset 0 0 0 1px var(--reader-line),inset 0 0 0 6px var(--reader-paper),inset 0 0 0 7px var(--reader-line),0 10px 25px #30241010}
+.reader[data-theme=editorial] .epub-sheet{border-radius:0;box-shadow:inset 0 4px 0 #a82d26,0 8px 24px #17191810}
+.reader[data-theme=library] .reading-scroll{background-color:var(--reader-bg);background-image:url('/world-wood.svg');background-size:640px 320px}
+.reader[data-theme=library] .epub-sheet{border-radius:4px;background-image:url('/paper-fibers.svg');box-shadow:0 15px 32px #120b0633,inset 0 0 0 1px var(--reader-line)}
+.reader[data-theme=magic] .reading-scroll{background-color:var(--reader-bg);background-image:url('/world-celestial.svg');background-size:600px 600px;background-position:center}
+.reader[data-theme=magic] .epub-sheet{border-radius:14px;box-shadow:0 12px 38px #05040b40,inset 0 0 0 1px #b39a624d,inset 0 0 0 5px #b39a6208}
+.reader.immersive-reader[data-theme=aged] .reading-scroll{background-image:url('/world-parchment.svg');background-size:640px 640px}
+.reader.immersive-reader .epub-sheet{box-shadow:none!important}
+@media(max-width:960px){html[data-design=aged] .main-content{width:calc(100% - 24px);padding:26px;margin:16px auto 36px}.continue-card .continue-progress{max-width:100%;width:270px}}
+@media(max-width:650px){.continue-card .continue-progress{width:100%;gap:9px}.continue-card .continue-progress>span:last-child{font-size:14px}html[data-design=aged] .main-content{padding:24px 18px;width:calc(100% - 20px)}.world-orbit{display:none}}
+@media(prefers-reduced-motion:reduce){.world-scene *,.book-card{animation:none!important}.cover-button{transition:none!important}}
+
+/* Texture stays around the reading surfaces, never behind small controls. */
+html[data-design=library] .main-content{position:relative;width:calc(100% - 46px);margin:24px auto 40px;padding:34px 36px;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 34px #21130918}
+html[data-design=library] .sidebar,html[data-design=library] .topbar{background-color:var(--panel)}
+html[data-design=library] .reader:not(.analysis-open) .reading-scroll{background-image:radial-gradient(ellipse at 90% 0%,#d8a24e18,transparent 65%),url('/world-wood.svg');background-size:cover,640px 320px;background-color:var(--reader-bg)}
+html[data-design=magic] .continue-card{background-repeat:no-repeat;background-size:cover,480px 480px;background-position:center,right -25px center}
+html[data-design=aged] .welcome h1 em,html[data-design=antique] .welcome h1 em,html[data-design=editorial] .welcome h1 em,html[data-design=library] .welcome h1 em,html[data-design=magic] .welcome h1 em{color:var(--green)}
+@media(max-width:960px){html[data-design=library] .main-content{width:calc(100% - 24px);margin:16px auto 32px;padding:26px}}
+@media(max-width:650px){html[data-design=library] .main-content{width:calc(100% - 20px);padding:24px 18px}}

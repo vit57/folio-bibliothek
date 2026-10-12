@@ -1,0 +1,137 @@
+/* Reader v1.7: paper owns the screen; controls float above the reading surface. */
+@media (pointer:coarse), (hover:none){.global-search kbd{display:none}}
+.reader:not(.immersive-reader):not(.analysis-open){--reader-toolbar-height:48px}
+.reader:not(.immersive-reader) .reading-toolbar{padding-block:2px}
+.reader.immersive-reader .reading-toolbar{height:50px}
+.reader .reading-toolbar .icon-btn{width:44px;min-width:44px;height:44px;min-height:44px}
+.reader[data-surface=integrated] .reading-scroll{background-color:var(--reader-paper)}
+html .reader[data-surface=integrated] .epub-sheet{background:transparent;border:0;border-radius:0;clip-path:none;box-shadow:none!important}
+html .reader[data-surface=framed] .epub-sheet{background-color:var(--reader-paper);border:1px solid var(--reader-line);border-radius:18px;clip-path:inset(0 round 18px);box-shadow:0 8px 36px #0000000d!important}
+.reader[data-surface=integrated] .reading-scroll{background-image:none}
+.reader .reader-book-title strong{font-family:system-ui,sans-serif;font-weight:500;font-size:15px;letter-spacing:0}
+.reader .reader-book-title small{font-size:11px;font-weight:400;margin-top:2px}
+.reader .reading-toolbar>span{text-transform:none;letter-spacing:0;font-size:12px}
+.reader-running-title{opacity:.7}
+.reader.guide-active .reader-running-title{opacity:.4}
+.reader .line-guide{position:absolute;overflow:hidden;pointer-events:none;z-index:10;contain:paint}
+.reader .line-guide-band{background:transparent;border:1px solid color-mix(in srgb,var(--reader-ink) 22%,transparent);border-radius:20px;box-shadow:none;transition:top .18s cubic-bezier(.22,.7,.3,1),height .18s;will-change:top}
+.reader .line-guide.dim-surroundings .line-guide-band{box-shadow:0 0 0 150vmax rgb(0 0 0 / var(--guide-dim,.55))}
+.reader .guide-handle{opacity:0;left:0;width:28px;min-width:28px;height:100%;min-height:24px;max-height:42px;border:0;box-shadow:none;background:transparent;color:var(--reader-ink)}
+.reader .line-guide-band:hover .guide-handle,.reader .guide-handle:focus-visible{opacity:1}
+.reader .guide-controls{right:16px;bottom:calc(var(--reader-footer-height,70px) + 12px);max-width:calc(100% - 32px);border-radius:24px;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:24}
+.reader.immersive-reader.chrome-hidden .guide-controls{bottom:calc(16px + env(safe-area-inset-bottom))}
+.reader.immersive-reader:not(.chrome-hidden) .guide-controls{bottom:calc(146px + env(safe-area-inset-bottom))}
+.reader .guide-line-status{font-size:11px}
+.reader-settings-dialog .segmented-setting{display:flex;gap:3px;align-items:stretch;min-width:0;border:1px solid var(--line);border-radius:14px;padding:3px;background:color-mix(in srgb,var(--panel) 60%,var(--surface))}
+.reader-settings-dialog .segmented-setting button{flex:1;min-width:0;padding:8px 12px;font:500 13px/1.35 system-ui,sans-serif;min-height:40px;border-radius:11px;color:var(--muted);background:transparent;white-space:nowrap;transition:color .15s}
+.reader-settings-dialog .segmented-setting button.selected{background:var(--surface);color:var(--ink);box-shadow:0 1px 5px #0001,inset 0 0 0 1px var(--line)}
+.reader-settings-dialog .guide-window-setting{display:grid;gap:10px;padding:15px 0;border-bottom:1px solid var(--line);font-size:15px;color:var(--ink)}
+.reader-settings-dialog .setting-row:has(.segmented-setting){flex-wrap:wrap;gap:10px}
+.reader-settings-dialog .theme-link-row{margin:4px 0 16px;font-size:14px}
+.reader-settings-dialog .type-preview{border:1px solid color-mix(in srgb,var(--preview-ink) 10%,transparent)}
+.reader-settings-dialog .type-preview[data-surface=integrated]{border:0;box-shadow:none;border-radius:0}
+.reader-settings-dialog .type-preview[data-guide=true]:after{display:none}
+.preview-guide{display:none;position:absolute;inset:auto;border:1px solid color-mix(in srgb,var(--preview-ink) 24%,transparent);border-radius:20px;box-shadow:0 0 0 100vmax rgb(0 0 0 / var(--preview-dim,.55));pointer-events:none;z-index:2}
+.type-preview[data-guide=true] .preview-guide{display:block}
+/* The PDF filmstrip is touch-scrollable and mirrors the active document page. */
+.pdf-filmstrip{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--reader-footer-height,70px) + 10px);width:min(840px,calc(100% - 32px));z-index:22;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 4px 24px #0001;padding:9px 12px}
+.pdf-thumbnails{position:relative;display:flex;gap:8px;overflow-x:auto;overscroll-behavior:contain;scrollbar-width:none;align-items:center;padding:4px 2px;touch-action:pan-x}
+.pdf-thumbnails::-webkit-scrollbar{display:none}
+.pdf-preview-button{display:block;flex:0 0 44px;position:relative;padding:0;border-radius:4px;color:var(--ink);background:none;min-height:44px;min-width:44px}
+.pdf-preview-image{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:.71;background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;box-shadow:0 1px 3px #0001}
+.pdf-preview-image>span{font:12px system-ui;color:var(--muted)}
+.pdf-preview-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+.preview-page-number{display:block;font:11px/1.3 system-ui;text-align:center;margin-top:4px;color:var(--muted);font-variant-numeric:tabular-nums}
+.preview-page-number svg{width:10px;height:10px;margin-left:3px;fill:var(--green);stroke:var(--green)}
+.pdf-preview-button[aria-current=true] .pdf-preview-image{outline:2px solid var(--green);outline-offset:2px}
+.pdf-preview-button[aria-current=true] .preview-page-number{font-weight:700;color:var(--green)}
+.reader.immersive-reader .pdf-filmstrip{bottom:calc(80px + env(safe-area-inset-bottom))}
+.reader.immersive-reader:has(.pdf-filmstrip) .reading-toolbar{bottom:calc(192px + env(safe-area-inset-bottom))}
+.reader.immersive-reader.chrome-hidden .pdf-filmstrip,.reader.focus-mode .pdf-filmstrip{visibility:hidden;opacity:0;pointer-events:none}
+.reader.immersive-reader:has(.pdf-filmstrip):not(.chrome-hidden) .guide-controls{bottom:calc(252px + env(safe-area-inset-bottom))}
+.reader:has(.pdf-filmstrip):not(.immersive-reader) .reading-scroll{padding-bottom:130px}
+.reader.immersive-reader:has(.pdf-filmstrip) .reading-scroll{padding-top:calc(88px + env(safe-area-inset-top));padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+.reader[data-pdf-mode=scroll] .reading-scroll{display:block;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;scroll-behavior:auto;overflow-anchor:none}
+.reader[data-pdf-mode=scroll] #page-content{display:block;height:auto;max-width:100%;width:100%;perspective:none}
+.pdf-page-slot{position:relative;margin:0 auto 24px;max-width:100%;background:#fff;box-shadow:0 2px 16px #00000012;border-radius:3px;overflow:hidden;content-visibility:auto;contain-intrinsic-size:auto 900px}
+.pdf-page-placeholder{position:absolute;inset:0;display:grid;place-items:center;color:#72766e;font:14px system-ui;background:#f5f5f2}
+.reader[data-pdf-mode=scroll] .pdf-sheet{margin:0 auto}
+.page-gallery-dialog{padding:22px;width:min(1020px,calc(100vw - 32px));overflow:hidden;max-height:calc(100dvh - 32px)}
+.gallery-book-title{margin:0 0 20px;color:var(--muted);font:14px/1.5 system-ui}
+.pdf-page-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:max-content;align-content:start;gap:24px;overflow-y:auto;height:min(700px,calc(100dvh - 170px));padding:6px 8px 28px;overscroll-behavior:contain;position:relative}
+.pdf-page-gallery .pdf-preview-button{align-self:start;min-width:0;min-height:0}
+.pdf-page-gallery .preview-page-number{font-size:14px;margin-top:10px}
+/* Aged paper: handmade margins, warm light and worn ink, with a calm text area. */
+html[data-design=aged]{--bg:#bca17a;--panel:#e2cca5;--surface:#f3e4c6;--line:#b69a6c;--paper-edge:#9d754745}
+html[data-design=aged][data-appearance=dark]{--bg:#211910;--panel:#382a1c;--surface:#30251a;--line:#705639;--paper-edge:#bc955b30}
+html[data-design=aged] .main-content{background-image:radial-gradient(ellipse at 0 0,#8f541421,transparent 38%),radial-gradient(ellipse at 100% 100%,#9563261f,transparent 35%),linear-gradient(90deg,#88602312,transparent 40px),url('/world-parchment.svg');border:1px solid var(--paper-edge);border-radius:3px 7px 5px 2px;box-shadow:0 1px 0 #fff4,0 5px 0 -2px var(--panel),0 6px 0 -2px var(--line),0 22px 42px #35210e24;}
+html[data-design=aged] .section-title h2{font-family:Baskerville,Georgia,serif;font-style:italic}
+html[data-design=aged] .section-title{border-bottom:1px solid var(--line);padding-bottom:14px}
+html[data-design=aged] .library-footer{border-top:3px double var(--line);font-family:Georgia,serif;font-style:italic}
+html[data-design=aged] .brand-sub:after{border:3px double var(--line);padding:10px 14px;transform:rotate(-2deg);border-radius:50%;letter-spacing:.16em}
+html .reader[data-theme=aged] .reading-scroll{background-image:radial-gradient(ellipse at 0 0,#9f5f1920,transparent 42%),radial-gradient(ellipse at 100% 100%,#9f5f1920,transparent 42%),linear-gradient(90deg,#80501418,transparent 8%,transparent 92%,#80501418),url('/world-parchment.svg');background-size:cover,cover,cover,640px 640px}
+html .reader[data-theme=aged][data-surface=framed] .epub-sheet{background-image:linear-gradient(90deg,#80501415,transparent 30px,transparent calc(100% - 30px),#80501415),url('/world-parchment.svg');border:1px solid var(--reader-line);border-radius:3px 7px 4px 2px;clip-path:none}
+.reader[data-theme=aged] .epub-page h1{font-family:Baskerville,Georgia,serif}
+.reader[data-theme=aged] .epub-page .eyebrow{letter-spacing:.2em;font-weight:500}
+.reader[data-theme=aged] .epub-page blockquote{border-left:2px solid var(--reader-line);font-style:italic}
+.type-preview[data-theme=aged]{background-image:radial-gradient(ellipse at 0 0,#9f5f191c,transparent 50%),url('/world-parchment.svg');background-size:cover,640px 640px}
+.book-turn-layer{perspective:3200px;perspective-origin:0% 50%;border-radius:0}
+.book-turn-fold{width:52px;background:linear-gradient(90deg,transparent,#0000000c 30%,#ffffff20 75%,#00000014)}
+@media(max-width:800px){.pdf-page-gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.reader-settings-dialog .setting-row:has(.segmented-setting){align-items:flex-start}.reader-settings-dialog .segmented-setting button{padding-inline:10px}.reader .reader-book-title strong{font-size:14px}.pdf-thumbnails{gap:6px}.pdf-filmstrip{padding:7px 9px;border-radius:20px}.pdf-preview-button{flex-basis:40px}}
+@media(max-width:500px){.pdf-page-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.reader .reader-book-title small{display:none}.reader-settings-dialog .dimming-setting button{padding-inline:8px;font-size:12px}.reader .guide-controls{right:10px}.reader.immersive-reader .reader-header{left:8px;right:8px}}
+@media(prefers-reduced-motion:reduce){.reader .line-guide-band{transition:none}}
+
+/* Reading keeps its geometry when temporary navigation is dismissed. */
+.reader:not(.immersive-reader):not(.analysis-open){--reader-footer-height:0px}
+.reader:not(.immersive-reader) .reader-footer{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 32px));height:60px;min-height:60px;border:1px solid var(--line);border-radius:22px;z-index:21;background:var(--surface);box-shadow:0 4px 20px #0001}
+.reader:not(.immersive-reader) .pdf-filmstrip{bottom:82px}
+.reader:has(.pdf-filmstrip):not(.immersive-reader) .reading-scroll{padding-bottom:12px}
+.reader.immersive-reader:has(.pdf-filmstrip) .reading-scroll{padding:calc(28px + env(safe-area-inset-top)) 18px calc(12px + env(safe-area-inset-bottom))}
+.reader.chrome-hidden .reading-toolbar,.reader.chrome-hidden .reader-footer,.reader.chrome-hidden .pdf-filmstrip,.reader.chrome-hidden .reader-pane{visibility:hidden;opacity:0;pointer-events:none}
+.reader:not(.immersive-reader):not(.chrome-hidden) .guide-controls{bottom:84px}
+.reader:not(.immersive-reader):has(.pdf-filmstrip):not(.chrome-hidden) .guide-controls{bottom:202px}
+.reader.pane-open .pdf-filmstrip,.reader.pane-open .reader-footer,.reader.pane-open .guide-controls{visibility:hidden;opacity:0;pointer-events:none}
+.reader.immersive-reader.pane-open .reading-toolbar{visibility:hidden;opacity:0;pointer-events:none}
+.reader.immersive-reader .reader-pane,.reader.immersive-reader .reader-pane.toc-pane{bottom:calc(16px + env(safe-area-inset-bottom))}
+html .reader.focus-mode .reading-toolbar,html .reader.focus-mode .reader-footer,html .reader.focus-mode .pdf-filmstrip,html .reader.focus-mode .guide-controls,html .reader.focus-mode .reader-quick-menu,html .reader.focus-mode .reader-pane{display:none!important}
+html .reader.focus-mode .reading-scroll{padding-top:calc(28px + env(safe-area-inset-top));padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.reader-quick-menu{position:absolute;z-index:32;display:grid;width:min(300px,calc(100% - 16px));max-height:calc(100% - 20px);overflow:auto;padding:8px;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--surface) 96%,transparent);color:var(--ink);box-shadow:0 12px 45px #0003;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.reader-quick-menu button{display:flex;align-items:center;gap:12px;text-align:left;min-height:44px;padding:12px;border-radius:14px;font:500 14px/1.4 system-ui,sans-serif}
+.reader-quick-menu button:hover,.reader-quick-menu button:focus-visible{background:var(--soft)}
+.reader-quick-menu button:last-child{border-top:1px solid var(--line);margin-top:4px;border-radius:0 0 14px 14px}
+.book-cover-wrap .cover-menu{width:44px;height:44px;min-height:44px;min-width:44px;border-radius:50%;top:10px;right:10px;background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--ink);box-shadow:inset 0 1px 0 #fff3,0 2px 12px #0002;backdrop-filter:blur(12px)}
+.book-cover-wrap .favorite-badge{display:grid;place-items:center;top:12px;left:12px;width:30px;height:30px;border-radius:50%;background:var(--surface);color:var(--green);box-shadow:0 1px 6px #0002}
+.book-cover-wrap .favorite-badge svg{width:16px;height:16px;fill:currentColor;stroke:var(--surface)}
+
+/* A readable running title stays above the focus mask, without fading. */
+.reader .reader-running-title,.reader.guide-active .reader-running-title{opacity:1;color:var(--reader-muted);z-index:12}
+.reader.immersive-reader .reader-running-title{font:500 13px/1.5 system-ui,sans-serif;top:calc(8px + env(safe-area-inset-top));left:24px;right:24px}
+.reader.immersive-reader.chrome-hidden .line-guide{clip-path:inset(calc(36px + env(safe-area-inset-top)) 0 0)}
+.reader:not(.chrome-hidden) .reader-header{opacity:1}
+/* Safari can retain a hidden backdrop layer over the running title. Remove
+   that layer entirely and keep title surfaces opaque in every app design. */
+html .reader .reader-header{background:var(--surface)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .reader.immersive-reader.chrome-hidden .reader-header{display:none}
+html .reader.chrome-hidden .reading-toolbar,html .reader.chrome-hidden .reader-footer{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .reader .reader-running-title{color:var(--reader-ink);filter:none;backdrop-filter:none;-webkit-backdrop-filter:none;text-shadow:none;opacity:1}
+/* On a tablet the search field has its own row instead of competing with actions. */
+@media(max-width:1100px),(pointer:coarse){
+  .main .topbar{display:grid;grid-template-columns:minmax(0,1fr) 44px auto;gap:12px;min-height:0;height:auto;padding:18px 22px 16px;align-items:center}
+  .topbar .breadcrumb{grid-column:1;grid-row:1;max-width:none;min-width:0;overflow:hidden}
+  .topbar .breadcrumb strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar .header-actions{display:contents}
+  .topbar .header-actions>[data-action=toggle-appearance]{grid-column:2;grid-row:1;width:44px;height:44px;min-width:44px;min-height:44px}
+  .topbar .header-actions>.primary{grid-column:3;grid-row:1;min-height:44px;white-space:nowrap}
+  .topbar .global-search{grid-column:1/-1;grid-row:2;display:flex;align-items:center;gap:12px;width:100%;min-width:0;height:52px;padding:0 16px;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:inset 0 1px 0 #ffffff0d}
+  .topbar .global-search kbd{display:none}
+  .topbar .global-search input{flex:1;width:auto;min-width:0;padding:10px 0;font-size:16px;line-height:1.4}
+  .topbar .global-search svg{width:20px;height:20px;flex-shrink:0;color:var(--muted)}
+}
+@media(max-width:500px){.main .topbar{padding:12px 14px;column-gap:6px}.topbar .global-search{height:48px;padding-inline:12px;border-radius:14px}}
+.app-version-info{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px;padding-top:16px;border-top:1px solid var(--line);font:13px/1.5 system-ui;color:var(--muted)}
+.app-update-notice{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:110;display:flex;align-items:center;gap:18px;width:max-content;max-width:calc(100% - 28px);padding:12px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink);box-shadow:0 8px 35px #0003;font:14px/1.4 system-ui}
+.app-update-notice button{min-height:44px;padding:8px 14px;border-radius:12px;background:var(--green);color:var(--on-green);font-weight:600}
+
+.app-version-info #app-update-status:empty{display:none}
+.app-version-info #app-update-status{flex-basis:100%;font-size:13px}
+.app-version-info .app-update-notice{position:static;left:auto;bottom:auto;transform:none;width:100%;max-width:none;flex-basis:100%;box-shadow:none;margin-top:8px}

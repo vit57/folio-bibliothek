@@ -1,0 +1,12 @@
+node_modules/
+dist/
+test-results/
+.DS_Store
+hosting/
+release/
+*.folio
+*.epub
+*.epub.zip
+*.pdf
+*.tar.gz
+*.zip
