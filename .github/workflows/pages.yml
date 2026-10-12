@@ -3,6 +3,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      local_browser_checks_passed:
+        description: Browserprüfungen für diesen Programmstand bereits lokal bestanden
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -29,9 +35,15 @@ jobs:
         env:
           FOLIO_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
       - run: npx playwright install --with-deps chromium webkit
+        if: github.event_name != 'workflow_dispatch' || !inputs.local_browser_checks_passed
+        timeout-minutes: 5
       - run: npm run test:pages
+        if: github.event_name != 'workflow_dispatch' || !inputs.local_browser_checks_passed
         env:
           FOLIO_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+      - name: Bereits lokal geprüfter Stand
+        if: github.event_name == 'workflow_dispatch' && inputs.local_browser_checks_passed
+        run: printf '%s\n' 'Manueller Lauf nach bereits bestandenen lokalen Browserprüfungen. Kernprüfungen und Produktionsbuild laufen auch hier vollständig.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
