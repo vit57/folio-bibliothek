@@ -8,13 +8,17 @@ Bücher importieren, lesen, markieren, eigene Fragen festhalten und Gedanken sp�
 
 Die App enthält nur eigene kurze Demo-Leseproben. Importierte Bücher, Sicherungen, Notizen und persönliche Bibliotheksdaten werden nicht auf GitHub hochgeladen.
 
-## Private Bereitstellung auf GitHub
+## Dauerhafte App auf Mac und iPad
 
-Dieses Repository und seine App-Pakete sind privat. GitHub Pages ist ausgeschaltet. Der Workflow `.github/workflows/private-build.yml` baut und prüft die App bei Änderungen an `main`; ein erfolgreicher Lauf stellt ein privates Download-Artefakt bereit.
+**[folio. öffnen](https://vit57.github.io/folio-bibliothek/)**
 
-Die aktuelle startfertige Mac-Ausgabe liegt außerdem bei den Releases. GitHub verlangt zum Öffnen des Repositorys und zum Herunterladen eine Anmeldung mit Zugriffsrecht. Eine private GitHub-Quelle stellt noch keinen privaten Webserver für das iPad bereit.
+App und Quellcode sind öffentlich. Importierte Bücher, Notizen, Markierungen, Lerndaten und Sicherungen bleiben im lokalen Browser-Speicher. Die App hat keinen gemeinsamen Server-Bücherbestand und lädt deine Bibliothek nicht auf GitHub hoch. Andere Personen starten mit ihren eigenen Demo-Büchern und ihrem eigenen Datenbestand.
 
-**Wechsel von einer anderen Adresse:** Dort zuerst unter Einstellungen eine `.folio`-Sicherung erstellen. Auf einer neuen App-Adresse die Sicherung einlesen. Bücher und Notizen bleiben in deinem Browser; die Quelle und die Download-Pakete enthalten keine persönliche Bibliothek.
+Der Mac muss für die GitHub-Adresse nicht eingeschaltet sein. Die App benötigt keine ChatGPT-Mitgliedschaft. Auf dem iPad in Safari öffnen → Teilen → Zum Home-Bildschirm. Nach dem ersten vollständigen Laden liegen die Programmdateien auch für die Offline-Nutzung auf dem Gerät.
+
+**Wechsel von der bisherigen Adresse:** Dort unter „Sicherung & Geräte“ → „Sicherung herunterladen“ eine `.folio`-Datei speichern. Danach unter der neuen GitHub-Adresse „Sicherung einlesen“ verwenden. Jeder Browser und jede App-Adresse hat einen eigenen Speicher; es gibt keinen automatischen Cloud-Abgleich. Sicherungen privat aufbewahren, sie enthalten deine Bücher und Notizen.
+
+`.github/workflows/pages.yml` prüft neue Änderungen an `main` und veröffentlicht erst nach erfolgreichem Build und Browserprüfung die statische App mit GitHub Pages.
 
 ## Lokal starten
 
