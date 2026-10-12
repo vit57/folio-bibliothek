@@ -127,7 +127,7 @@ test('Sicherungen weisen ungültige Lerndaten, Prototype-Schlüssel und doppelte
 
 
 import {prepareBookFiles} from '../src/formats.js';
-import {readBookBytes} from '../src/file-bytes.js';
+import {readBookBytes,bookFileDetails} from '../src/file-bytes.js';
 import {epubFixture,pdfFixture} from './fixtures.mjs';
 test('Buchimport erkennt .epub.zip nach Inhalt und entpackt Buchdateien aus ZIPs',async()=>{
   const epub=await epubFixture(),renamed=new File([epub],'Buch.epub.zip',{type:'application/zip'});
@@ -141,6 +141,7 @@ test('Dateipaket wird einmal vollständig gelesen, auch mit unbrauchbaren Teilre
  const sourceBytes=await epubFixture(),bytes=sourceBytes.buffer.slice(sourceBytes.byteOffset,sourceBytes.byteOffset+sourceBytes.byteLength);let count=0;
  const provider={name:'Buch.epub.zip',size:7*1024**2,type:'application/zip',slice(){throw new Error('Teilread nicht verfügbar');},async arrayBuffer(){count++;if(count>1)throw new Error('Dateizugriff abgelaufen');return bytes;}};
  assert.equal((await prepareBookFiles(provider))[0],provider);assert.equal(await readBookBytes(provider),bytes);assert.equal(count,1);
+ const info=bookFileDetails(provider);assert.equal(info.reportedBytes,7*1024**2);assert.equal(info.receivedBytes,bytes.byteLength);assert.equal(info.signature.slice(0,8),'504b0304');assert.equal(info.signature.length,16);assert.equal(info.method,'arrayBuffer');assert.ok(!JSON.stringify(info).includes('Bewusstes Lesen'));
  const pdf=pdfFixture();const source={name:'Quelle.pdf',size:pdf.byteLength,async arrayBuffer(){return pdf.buffer.slice(pdf.byteOffset,pdf.byteOffset+pdf.byteLength);},slice(){throw new Error('Kein Teilread');}};assert.equal((await prepareBookFiles(source))[0],source);
 });
 test('Leere oder nicht lesbare Dateiauswahl wird erklärt und lässt einen erneuten Zugriff zu',async()=>{

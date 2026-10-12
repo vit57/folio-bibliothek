@@ -41,6 +41,10 @@ FOLIO_BASE_PATH=/folio-bibliothek/ npm run test:pages
 
 `test:pages` prüft den tatsächlichen Unterpfad, EPUB/PDF, Schriften/Bilder, PWA-Scope, Offline-Dateien und die klare Titelzeile in mehreren Designs. Die iPad-Prüfung ist eine WebKit-Simulation.
 
+## Version 1.10.4
+
+Ein fehlgeschlagener Import zeigt die laufende App-Version und auf Wunsch eine lokale Diagnose: Dateiname/-typ, gemeldete und tatsächlich gelesene Byteanzahl, Lesemethode, erste acht Bytes als Dateikennung, Verarbeitungsstufe und Fehler. Es gibt keinen automatischen Upload. „Diagnose kopieren“ arbeitet per eigener Aktion; die Originaldatei wird nicht in den Bericht aufgenommen.
+
 ## Version 1.10.3
 
 - Buchdateien werden einmal vollständig gelesen und für Erkennung, Verarbeitung und Speicherung wiederverwendet. Unzuverlässige Dateiausschnitte und vorzeitig beendete Providerzugriffe werden so vermieden. Ein FileReader steht als Fallback bereit; leere Dateidaten werden konkret erklärt.

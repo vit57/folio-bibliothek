@@ -14,7 +14,7 @@ import {exportDocuments,documentsMarkdown,notionTables,exportFilename} from './e
 import {inspectArchive,readEntry} from './archive.js';
 import {uid,escape as e,percentage,descendants,folderPath,searchBooks,normalize,validateBackup,locateQuote,originalOffset} from './core.js';
 import {parseBook,prepareBookFiles,importEPUB,openPDF,loadPDF} from './formats.js';
-import {readBookBytes} from './file-bytes.js';
+import {readBookBytes,bookFileDetails} from './file-bytes.js';
 import {demos,coverSVG} from './demo.js';
 import {visibleReadingLines,nearestReadingLine} from './reading-lines.js';
 import {paginate,visibleSelectionRect,positionSelectionTools,snapshotPage,animateTurn} from './pagination.js';
@@ -132,19 +132,20 @@ function applyAppearance(){const dark=resolvedAppearance(state.settings,matchMed
 function centerReaderHeader(){const header=$('.reader-header');if(!header)return;const left=header.firstElementChild,right=$('.reader-header-tools');if(!left||!right)return;const reserve=Math.ceil(Math.max(left.getBoundingClientRect().width,right.getBoundingClientRect().width)+20);header.classList.toggle('compact',!compactReader()&&header.clientWidth-48-2*reserve<180);header.style.setProperty('--header-reserve',`${reserve}px`);}
 function appSettings(){openDialog('Darstellung & Lesbarkeit',`<p class="muted">Passe die gesamte App an deinen Bildschirm an.</p><label>App-Darstellung<select id="app-theme" aria-label="App-Darstellung">${[['system','Wie das Gerät'],['light','Hell'],['dark','Dunkel']].map(([v,l])=>`<option value="${v}" ${state.settings.appTheme===v?'selected':''}>${l}</option>`).join('')}</select></label><h3 class="settings-section-title">App-Design</h3>${designPicker(state.settings)}<label class="check-label"><input id="ambient-motion" type="checkbox" ${state.settings.ambientMotion?'checked':''}> Atmosphäre animieren</label><label>Größe der Oberfläche <span id="ui-scale-value">${Math.round(state.settings.uiScale*100)} %</span><input id="ui-scale" type="range" min="1" max="1.6" step="0.1" value="${state.settings.uiScale}" aria-label="Größe der Oberfläche"></label><p class="muted">Vergrößert Navigation, Beschriftungen, Formulare und Bedienelemente. Die Schrift im Buch stellst du separat im Reader ein.</p><label class="check-label"><input id="animation-setting" type="checkbox" ${state.settings.animation?'checked':''}> Seitenwechsel animieren</label><label>Animation<select id="animation-style"><option value="page" ${state.settings.animationStyle==='page'?'selected':''}>Sanftes Umblättern</option><option value="slide" ${state.settings.animationStyle==='slide'?'selected':''}>Sanftes Gleiten</option><option value="fade" ${state.settings.animationStyle==='fade'?'selected':''}>Kurzes Überblenden</option></select></label><p class="muted">Umblättern, Gleiten oder Überblenden. Bei „Bewegung reduzieren“ wird direkt umgeschaltet.</p><hr><div class="settings-info">${i('monitor')}<div><strong>Mac & iPad</strong><p>Deine Darstellung wird auf diesem Gerät gespeichert. Buchdateien, Lesestellen und Lerntexte bleiben erhalten.</p></div></div><div class=app-version-info><span>folio. · Version ${APP_VERSION}</span><span id="app-update-status" role="status" aria-live="polite"></span>${btn('check-app-update','refresh-cw','Nach Updates suchen','text-btn')}</div>`,btn('close-dialog','','Fertig','primary'));}
 
-async function importFiles(files){if(state.busy)return;state.busy=true;
+let importDiagnostic='';
+async function importFiles(files){if(state.busy)return;state.busy=true;importDiagnostic='';
   openDialog('Bücher importieren',`<div class="import-status">${i('book-open')}<h3 id="import-name">Deine Bücher ziehen ein …</h3><p id="import-progress" class="muted">Dateien werden auf diesem Gerät verarbeitet.</p><progress id="import-bar" max="100" value="0"></progress></div>`);
-  let count=0;const errors=[];
+  let count=0;const errors=[],diagnostics=[];
   try{for(const original of files){$('#import-name').textContent=original.name;try{
-    for(const file of await prepareBookFiles(original)){try{
+    for(const file of await prepareBookFiles(original)){let stage='Buch verarbeiten';try{
       $('#import-name').textContent=file.name;
       const book=await parseBook(file,(page,total)=>{$('#import-progress').textContent=`${page} von ${total} werden eingelesen …`;$('#import-bar').value=page/total*100;});
       if(state.folders.some(f=>f.id===state.view))book.collections=[state.view];
-      await db.batch([{store:'books',value:book},{store:'files',value:{id:book.id,data:await readBookBytes(file),name:file.name,type:book.format==='PDF'?'application/pdf':'application/epub+zip'}}]);state.books.push(book);count++;
-    }catch(error){errors.push(`${file.name}: ${error?.message || 'Die Datei konnte nicht gespeichert werden.'}`);}}
-  }catch(error){errors.push(`${original.name}: ${error?.message || 'Das Archiv konnte nicht geöffnet werden.'}`);}}
+      stage='Buch speichern';await db.batch([{store:'books',value:book},{store:'files',value:{id:book.id,data:await readBookBytes(file),name:file.name,type:book.format==='PDF'?'application/pdf':'application/epub+zip'}}]);state.books.push(book);count++;
+    }catch(error){errors.push(`${file.name}: ${error?.message || 'Die Datei konnte nicht gespeichert werden.'}`);diagnostics.push({...bookFileDetails(file),stage,error:error?.name||'Error',message:error?.message||''});}}
+  }catch(error){errors.push(`${original.name}: ${error?.message || 'Das Archiv konnte nicht geöffnet werden.'}`);diagnostics.push({...bookFileDetails(original),stage:'Datei erkennen und öffnen',error:error?.name||'Error',message:error?.message||''});}}
   }finally{state.busy=false;state.sidebar=false;$('#file-input').value='';state.query='';render();}
-  if(errors.length)openDialog(count?'Import teilweise abgeschlossen':'Import nicht möglich',`<p>${count?`${count} ${count===1?'Buch wurde':'Bücher wurden'} gespeichert.`:'Es wurde kein Buch gespeichert.'}</p><div class="import-errors">${errors.map(t=>`<p>${e(t)}</p>`).join('')}</div>`,btn('close-dialog','','Fertig','primary'));else{dialog.close();toast(`${count} ${count===1?'Buch ist':'Bücher sind'} jetzt in deiner Bibliothek.`);}
+  if(errors.length){importDiagnostic=JSON.stringify({version:APP_VERSION,address:location.origin+location.pathname,userAgent:navigator.userAgent,displayMode:document.documentElement.dataset.displayMode,saved:count,files:diagnostics.slice(0,20)},null,2);openDialog(count?'Import teilweise abgeschlossen':'Import nicht möglich',`<p>${count?`${count} ${count===1?'Buch wurde':'Bücher wurden'} gespeichert.`:'Es wurde kein Buch gespeichert.'}</p><p class="muted">folio. · Version ${APP_VERSION}</p><div class="import-errors">${errors.map(t=>`<p>${e(t)}</p>`).join('')}</div><details class="import-diagnostic"><summary>Details zur Fehlersuche</summary><p>Diese Angaben bleiben auf deinem Gerät. Sie enthalten die App-Version, Dateiname, Größe und die ersten acht Bytes als Dateikennung, keine Buchseiten oder Notizen.</p><textarea readonly aria-label="Importdiagnose" spellcheck="false">${e(importDiagnostic)}</textarea>${btn('copy-import-diagnostic','copy','Diagnose kopieren','subtle-btn')}</details>`,btn('close-dialog','','Fertig','primary'));}else{dialog.close();toast(`${count} ${count===1?'Buch ist':'Bücher sind'} jetzt in deiner Bibliothek.`);}
   navigator.storage?.persist?.().catch(()=>{});
 }
 
@@ -308,10 +309,11 @@ async function restoreBackup(){if(!pendingBackup)return;const {zip,data}=pending
 
 function backupDialog(){openDialog('Sicherung & Geräte',`<div class="backup-illustration">${i('monitor')}${i('arrow-left-right')}${i('tablet')}</div><h3>Deine Bibliothek geht mit.</h3><p>Eine folio-Sicherung enthält alle Bücher, Originaldateien, Collections, Markierungen, Fragen, Notizen und Lesezeichen.</p><ol class="backup-steps"><li>Sicherung auf diesem Gerät herunterladen.</li><li>In iCloud Drive oder einem anderen Dateiordner ablegen.</li><li>Auf dem anderen Gerät folio. öffnen und die Sicherung einlesen.</li></ol><p class="muted">Der Abgleich erfolgt per Datei. Es gibt keinen automatischen Cloud-Sync. Sichere regelmäßig: Browserdaten können gelöscht werden.</p><div class="backup-actions">${btn('export-backup','download','Sicherung herunterladen','primary')}${btn('import-backup','upload','Sicherung einlesen','subtle-btn')}</div>`);}
 
-async function action(name){const [type,...parts]=name.split(':'),id=parts.join(':');if(type!=='guide-menu')closeGuideMenu();if(await learningAction(type,id,parts))return;
+async function action(name){const [type,...parts]=name.split(':'),id=parts.join(':');if(type==='copy-import-diagnostic'){try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(importDiagnostic);toast('Diagnose kopiert. Du kannst sie in diesen Chat einfügen.');}catch{const field=dialog.querySelector('[aria-label=Importdiagnose]');field?.focus();field?.select();toast('Diagnose markiert. Bitte über das Auswahlmenü kopieren.');}return;}if(type!=='guide-menu')closeGuideMenu();if(await learningAction(type,id,parts))return;
   if(type==='nav'||type==='collection'){state.reader=null;state.view=id;state.query='';state.sidebar=false;render();}
   else if(type==='import')importDialog();
   else if(type==='import-files')$('#file-input').click();
+
   else if(type==='apple-import')appleImportDialog();
   else if(type==='transfer')transferDialog();
   else if(type==='export-book')exportDialog(id);

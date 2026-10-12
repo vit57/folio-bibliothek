@@ -136,3 +136,5 @@ html .reader.chrome-hidden .reading-toolbar,html .reader.chrome-hidden .reader-f
 .app-version-info #app-update-status:empty{display:none}
 .app-version-info #app-update-status{flex-basis:100%;font-size:13px}
 .app-version-info .app-update-notice{position:static;left:auto;bottom:auto;transform:none;width:100%;max-width:none;flex-basis:100%;box-shadow:none;margin-top:8px}
+
+.import-diagnostic{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}.import-diagnostic summary{cursor:pointer;font-weight:600}.import-diagnostic p{font-size:14px;color:var(--muted)}.import-diagnostic textarea{display:block;width:100%;min-height:180px;max-height:300px;margin-block:12px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--ink);font:12px/1.5 ui-monospace,monospace;resize:vertical}
